@@ -43,8 +43,8 @@ local ldbc_snb_is02 = function(person_id)
             ["message.creationDate"] = date(properties["creationDate"]):fmt("${iso}Z")
         }
 
-         if (properties["content"] == '') then
-            result["message.imageFile"] =  properties["imageFile"]
+        if (properties["content"] == '') then
+            result["message.imageFile"] = properties["imageFile"]
         else
             result["message.content"] = properties["content"]
         end

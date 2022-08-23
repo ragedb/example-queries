@@ -1,7 +1,7 @@
 -- Interactive Query 1
 local ldbc_snb_iq01 = function(person_id, firstName)
 
-local node_id = NodeGetId("Person", person_id)
+    local node_id = NodeGetId("Person", person_id)
     local people = NodeGetLinks(node_id, "KNOWS")
     local seen1 = Roar.new()
 
@@ -104,6 +104,54 @@ end
 ldbc_snb_iq01("1129", "Chen")
 
 -- Interactive Query 2
+
+local ldbc_snb_iq02 = function(person_id, maxDate)
+
+    local node_id = NodeGetId("Person", person_id)
+    local friends = NodeGetNeighbors(node_id, "KNOWS")
+    local results = {}
+      for i, friend in pairs(friends) do
+          local properties = friend:getProperties()
+          local messages = NodeGetNeighbors(friend:getId(), Direction.IN, "HAS_CREATOR")
+          for j, message in pairs(messages) do
+            local msg_properties = message:getProperties()
+            if (date(msg_properties["creationDate"]) < maxDate) then
+                local result = {
+                    ["friend.id"] = properties["id"],
+                    ["friend.firstName"] = properties["firstName"],
+                    ["friend.lastName"] = properties["lastName"]
+                }
+                result["message.id"] = msg_properties["id"]
+                if (msg_properties["content"] == '') then
+                    result["message.imageFile"] = msg_properties["imageFile"]
+                else
+                    result["message.content"] = msg_properties["content"]
+                end
+                result["message.creationDate"] = msg_properties["creationDate"]
+                table.insert(results, result)
+            end
+          end
+      end
+
+      table.sort(results, function(a, b)
+          if a["message.creationDate"] > b["message.creationDate"] then
+              return true
+          end
+          if (a["message.creationDate"] == b["message.creationDate"]) then
+              return (a["message.id"] < b["message.id"] )
+          end
+      end)
+
+    local smaller = table.move(results, 1, 20, 1, {})
+
+      for i = 1, #smaller do
+          smaller[i]["message.creationDate"] = date(smaller[i]["message.creationDate"]):fmt("${iso}Z")
+      end
+
+      return smaller
+end
+
+ldbc_snb_iq02("1129", date("2022-05-20T18:55:55.595+0000Z"))
 
 -- Interactive Query 3
 
