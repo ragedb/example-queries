@@ -175,4 +175,71 @@ ldbc_snb_iq02("1129", date("2022-05-20T18:55:55.595+0000Z"))
 
 -- Interactive Query 13
 
+local ldbc_snb_iq13 = function(person1_id, person2_id)
+    if (person1_id == person2_id) then return 0 end
+    local length = 1
+    local node1_id = NodeGetId("Person", person1_id)
+    local node2_id = NodeGetId("Person", person2_id)
+    local left_people = {}
+    local right_people = {}
+
+    local seen_left = Roar.new()
+    local seen_right = Roar.new()
+    local next_left = Roar.new()
+    local next_right = Roar.new()
+
+    seen_left:add(node1_id)
+    seen_right:add(node2_id)
+    next_left:add(node1_id)
+    next_right:add(node2_id)
+
+    while ((next_left:cardinality() + next_right:cardinality()) > 0) do
+        if(next_left:cardinality() > 0) then
+            left_people = NodeIdsGetNeighborIds(next_left:getIds(), "KNOWS")
+            next_left:clear()
+            next_left:addIds(left_people)
+            next_left:inplace_difference(seen_left)
+            if (next_left:intersection(next_right):cardinality() > 0) then return length end
+            length = length + 1
+            seen_left:inplace_union(next_left)
+        end
+        if(next_right:cardinality() > 0) then
+            right_people = NodeIdsGetNeighborIds(next_right:getIds(), "KNOWS")
+            next_right:clear()
+            next_right:addIds(right_people)
+            next_right:inplace_difference(seen_right)
+            if (next_right:intersection(next_left):cardinality() > 0) then return length end
+            length = length + 1
+            seen_right:inplace_union(next_right)
+        end
+    end
+
+    return -1
+end
+
+ldbc_snb_iq13("1129", "1242") -- 1
+ldbc_snb_iq13("1129", "555") -- 2
+ldbc_snb_iq13("1129", "3412") -- 3
+ldbc_snb_iq13("1129", "1885") -- 4
+
+-- Test Query Parameters for IQ13
+local max_length = 4
+local length = 0
+local node1_id = NodeGetId("Person", "1129")
+local left_people = {}
+local seen_left = Roar.new()
+local next_left = Roar.new()
+next_left:add(node1_id)
+while ((next_left:cardinality()) > 0 and length < max_length) do
+    left_people = NodeIdsGetNeighborIds(next_left:getIds(), "KNOWS")
+    next_left:clear()
+    next_left:addIds(left_people)
+    next_left:inplace_difference(seen_left)
+    seen_left:inplace_union(next_left)
+    length = length + 1
+end
+length, NodesGetProperty(next_left:getIds(), "id")
+
+
+
 -- Interactive Query 14
