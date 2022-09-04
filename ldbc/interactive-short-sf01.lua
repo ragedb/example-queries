@@ -92,9 +92,9 @@ ldbc_snb_is03 = function(person_id)
     local knows = NodeGetLinks("Person", person_id, "KNOWS")
     local friendships = {}
     for i, know in pairs(knows) do
-      creation = RelationshipGetProperty(know:getRelationshipId(),"creationDate")
-      friend = NodeGetProperties(know:getNodeId())
-      friendship = {
+      local creation = RelationshipGetProperty(know:getRelationshipId(),"creationDate")
+      local friend = NodeGetProperties(know:getNodeId())
+      local friendship = {
         ["friend.id"] = friend["id"],
         ["friend.firstName"] = friend["firstName"],
         ["friend.lastName"] = friend["lastName"],
@@ -104,18 +104,19 @@ ldbc_snb_is03 = function(person_id)
     end
 
     table.sort(friendships, function(a, b)
-      if a["knows.creationDate"] > b["knows.creationDate"] then
+      local adate = a["knows.creationDate"]
+      local bdate = b["knows.creationDate"]
+      if adate > bdate then
           return true
       end
-      if (a["knows.creationDate"] == b["knows.creationDate"]) then
+      if (adate == bdate) then
          return (a["friend.id"] < b["friend.id"] )
       end
     end)
 
     for i = 1, #friendships do
-      friendships[i]["knows.creationDate"] = date(friendships[i]["knows.creationDate"]):fmt("${iso}Z")
+      friendships[i]["knows.creationDate"] = DateToISO(friendships[i]["knows.creationDate"])
     end
-
 
     return friendships
 end
