@@ -12,7 +12,7 @@ ldbc_snb_is01 = function(person_id)
         ["person.browserUsed"] = properties["browserUsed"],
         ["city.id"] = city:getProperty("id"),
         ["person.gender"] = properties["gender"],
-        ["person.creationDate"] = date(properties["creationDate"]):fmt("${iso}Z")
+        ["person.creationDate"] = DateToISO(properties["creationDate"])
     }
 
     return result
@@ -50,7 +50,7 @@ ldbc_snb_is02 = function(person_id)
 
         local result = {
             ["message.id"] = properties["id"],
-            ["message.creationDate"] = date(properties["creationDate"]):fmt("${iso}Z")
+            ["message.creationDate"] = DateToISO(properties["creationDate"])
         }
 
         if (properties["content"] == '') then
@@ -126,7 +126,7 @@ ldbc_snb_is04 = function(message_id)
 
     local properties = NodeGetProperties("Message", message_id)
     local result = {
-        ["message.creationDate"] = date(properties["creationDate"]):fmt("${iso}Z")
+        ["message.creationDate"] = DateToISO(properties["creationDate"])
     }
 
     if (properties["content"] == '') then
@@ -217,7 +217,7 @@ ldbc_snb_is07 = function(message_id)
     end)
 
     for i = 1, #comments do
-        comments[i]["comment.creationDate"] = date(comments[i]["comment.creationDate"]):fmt("${iso}Z")
+        comments[i]["comment.creationDate"] = DateToISO(comments[i]["comment.creationDate"])
     end
 
     return comments
