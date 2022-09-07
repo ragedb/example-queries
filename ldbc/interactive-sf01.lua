@@ -93,7 +93,7 @@ local ldbc_snb_iq01 = function(person_id, firstName)
       
       person["universities"] = table.concat(studied_list, ", ")
       person["companies"] = table.concat(worked_list, ", ")
-      person["otherPerson.creationDate"] = date(person["otherPerson.creationDate"]):fmt("${iso}Z")
+      person["otherPerson.creationDate"] = DateToISO(person["otherPerson.creationDate"])
       table.insert(results, person)
     end
 
@@ -101,11 +101,9 @@ local ldbc_snb_iq01 = function(person_id, firstName)
   
 end
 
-ldbc_snb_iq01("1129", "Chen")
-
 -- Interactive Query 2
 
-local ldbc_snb_iq02 = function(person_id, maxDate)
+ldbc_snb_iq02 = function(person_id, maxDate)
 
     local node_id = NodeGetId("Person", person_id)
     local friends = NodeGetNeighbors(node_id, "KNOWS")
@@ -134,10 +132,12 @@ local ldbc_snb_iq02 = function(person_id, maxDate)
       end
 
       table.sort(results, function(a, b)
-          if a["message.creationDate"] > b["message.creationDate"] then
+          local adate = a["message.creationDate"]
+          local bdate = b["message.creationDate"]
+          if adate > bdate then
               return true
           end
-          if (a["message.creationDate"] == b["message.creationDate"]) then
+          if (adate == bdate) then
               return (a["message.id"] < b["message.id"] )
           end
       end)
@@ -145,7 +145,7 @@ local ldbc_snb_iq02 = function(person_id, maxDate)
     local smaller = table.move(results, 1, 20, 1, {})
 
       for i = 1, #smaller do
-          smaller[i]["message.creationDate"] = date(smaller[i]["message.creationDate"]):fmt("${iso}Z")
+          smaller[i]["message.creationDate"] = DateToISO(smaller[i]["message.creationDate"])
       end
 
       return smaller
@@ -217,10 +217,7 @@ local ldbc_snb_iq13 = function(person1_id, person2_id)
     return -1
 end
 
-ldbc_snb_iq13("1129", "1242") -- 1
-ldbc_snb_iq13("1129", "555") -- 2
-ldbc_snb_iq13("1129", "3412") -- 3
-ldbc_snb_iq13("1129", "1885") -- 4
+
 
 -- Test Query Parameters for IQ13
 local max_length = 4
