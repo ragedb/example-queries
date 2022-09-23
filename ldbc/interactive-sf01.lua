@@ -103,7 +103,7 @@ end
 
 -- Interactive Query 2
 
-ldbc_snb_iq02 = function(person_id, maxDate)
+ldbc_snb_iq02_orig = function(person_id, maxDate)
 
     local node_id = NodeGetId("Person", person_id)
     local friends = NodeGetNeighbors(node_id, "KNOWS")
@@ -149,6 +149,63 @@ ldbc_snb_iq02 = function(person_id, maxDate)
       end
 
       return smaller
+end
+
+--ALL
+ldbc_snb_iq02 = function(person_id, maxDate)
+
+    local node_id = NodeGetId("Person", person_id)
+    local friends = NodeGetLinks(node_id, "KNOWS")
+    local friend_properties = LinksGetNodeProperties(friends)
+    local messages = LinksGetLinks(friends, Direction.IN, "HAS_CREATOR")
+
+    local results = {}
+    local friend_properties_map = {}
+    for link, properties in pairs(friend_properties) do
+      friend_properties_map[tostring(link:getNodeId())] = properties
+    end
+
+    for link, user_messages in pairs(messages) do
+         local properties = friend_properties_map[tostring(link:getNodeId())]
+         local messages_props = LinksGetNodeProperties(user_messages)
+
+         for j, msg_properties in pairs(messages_props) do
+           if (date(msg_properties["creationDate"]) < maxDate) then
+              local result = {
+                  ["friend.id"] = properties["id"],
+                  ["friend.firstName"] = properties["firstName"],
+                  ["friend.lastName"] = properties["lastName"]
+              }
+              result["message.id"] = msg_properties["id"]
+              if (msg_properties["content"] == '') then
+                  result["message.imageFile"] = msg_properties["imageFile"]
+              else
+                  result["message.content"] = msg_properties["content"]
+              end
+              result["message.creationDate"] = msg_properties["creationDate"]
+              table.insert(results, result)
+          end
+        end
+    end
+
+      table.sort(results, function(a, b)
+          local adate = a["message.creationDate"]
+          local bdate = b["message.creationDate"]
+          if adate > bdate then
+              return true
+          end
+          if (adate == bdate) then
+              return (a["message.id"] < b["message.id"] )
+          end
+      end)
+
+        local smaller = table.move(results, 1, 20, 1, {})
+
+          for i = 1, #smaller do
+              smaller[i]["message.creationDate"] = DateToISO(smaller[i]["message.creationDate"])
+          end
+
+    return smaller
 end
 
 ldbc_snb_iq02("1129", date("2022-05-20T18:55:55.595+0000Z"))

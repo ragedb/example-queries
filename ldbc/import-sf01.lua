@@ -42,14 +42,14 @@ for i, message in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf1/post_0_0.
     "\"locationIP\":".."\""..message.locationIP.."\","..
     "\"browserUsed\":".."\""..message.browserUsed.."\","..
     "\"language\":".."\""..message.language.."\","..
-    "\"content\":".."\""..message.content.."\","..
+    "\"content\":".."\""..string.gsub(message.content, "\t", " ").."\","..
     "\"length\":"..message.length..",\"creationDate\":".."\""..message.creationDate.."\",\"type\":\"post\"}")
 end
 
 for i, message in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf1/comment_0_0.csv", "|") do
    NodeAdd("Message", message.id, "{\"id\":"..message.id..",\"locationIP\":".."\""..message.locationIP.."\","..
     "\"browserUsed\":".."\""..message.browserUsed.."\","..
-    "\"content\":".."\""..message.content.."\","..
+    "\"content\":".."\""..string.gsub(message.content, "\t", " ").."\","..
     "\"length\":"..message.length..",\"creationDate\":".."\""..message.creationDate.."\",\"type\":\"comment\"}")
 end
 
