@@ -26,15 +26,16 @@ ldbc_snb_is02 = function(person_id)
     local messages = {}
     local messages_dates = NodesGetProperty(message_node_ids, "creationDate")
     local messages_ids = NodesGetProperty(message_node_ids, "id")
-    for i=1,#message_node_ids do
-      local properties = {
-       ["creationDate"] = messages_dates[i],
-       ["id"] = messages_ids[i],
-       ["node_id"] = message_node_ids[i]
+
+    for i, id in pairs(message_node_ids) do
+    local properties = {
+       ["creationDate"] = messages_dates[id],
+       ["id"] = messages_ids[id],
+       ["node_id"] = id
       }
       table.insert(messages, properties)
     end
-        table.sort(messages, function(a, b)
+   table.sort(messages, function(a, b)
         local adate = a["creationDate"]
         local bdate = b["creationDate"]
         if adate > bdate then
@@ -65,7 +66,6 @@ ldbc_snb_is02 = function(person_id)
             result["originalPoster.firstName"] = person_properties["firstName"]
             result["originalPoster.lastName"] = person_properties["lastName"]
         else
-            -- removing the chase gives me an extra 100 req/s
             local node_id = properties["node_id"]
             local hasReply = NodeGetLinks(node_id, Direction.OUT, "REPLY_OF")
             while (#hasReply > 0) do
@@ -90,10 +90,13 @@ end
 ldbc_snb_is03 = function(person_id)
 
     local knows = NodeGetLinks("Person", person_id, "KNOWS")
+    local node_properties = LinksGetNodeProperties(knows)
+    local rels_property = LinksGetRelationshipProperty(knows, "creationDate")
+
     local friendships = {}
     for i, know in pairs(knows) do
-      local creation = RelationshipGetProperty(know:getRelationshipId(),"creationDate")
-      local friend = NodeGetProperties(know:getNodeId())
+      local creation = rels_property[know:getRelationshipId()]
+      local friend = node_properties[know:getNodeId()]
       local friendship = {
         ["friend.id"] = friend["id"],
         ["friend.firstName"] = friend["firstName"],
