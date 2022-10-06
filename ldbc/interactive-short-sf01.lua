@@ -187,11 +187,7 @@ ldbc_snb_is07 = function(message_id)
 
     local message_node_id = NodeGetId("Message", message_id)
     local author = NodeGetNeighbors(message_node_id, Direction.OUT, "HAS_CREATOR")[1]
-    local knows = NodeGetLinks(author:getId(), "KNOWS")
-    local knows_ids = {}
-    for i, know in pairs (knows) do
-        table.insert(knows_ids, know:getNodeId())
-    end
+    local knows_ids = NodeGetNeighborIds(author:getId(), "KNOWS")
 
     local comments = {}
     local replies = NodeGetNeighbors(message_node_id, Direction.IN, "REPLY_OF")
@@ -211,12 +207,14 @@ ldbc_snb_is07 = function(message_id)
     end
 
     table.sort(comments, function(a, b)
-        if a["comment.creationDate"] > b["comment.creationDate"] then
-            return true
-        end
-        if (a["comment.creationDate"] == b["comment.creationDate"]) then
-            return (a["replyAuthor.id"] < b["replyAuthor.id"] )
-        end
+      local adate = a["comment.creationDate"]
+      local bdate = b["comment.creationDate"]
+      if adate > bdate then
+          return true
+      end
+      if (adate == bdate) then
+         return (a["replyAuthor.id"] < b["replyAuthor.id"] )
+      end
     end)
 
     for i = 1, #comments do
