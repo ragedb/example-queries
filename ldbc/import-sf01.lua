@@ -204,6 +204,7 @@ relationships = {
       ["IS_LOCATED_IN"] = RelationshipTypesGetCount("IS_LOCATED_IN"),
       ["IS_PART_OF"] = RelationshipTypesGetCount("IS_PART_OF"),
       ["LIKES"] = RelationshipTypesGetCount("LIKES"),
+      ["REPLY_OF"] = RelationshipTypesGetCount("REPLY_OF"),
       ["STUDY_AT"] = RelationshipTypesGetCount("STUDY_AT"),
       ["WORK_AT"] = RelationshipTypesGetCount("WORK_AT")
 }

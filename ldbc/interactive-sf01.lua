@@ -1,5 +1,6 @@
+--ALL
 -- Interactive Query 1
-local ldbc_snb_iq01 = function(person_id, firstName)
+ldbc_snb_iq01 = function(person_id, firstName)
 
     local node_id = NodeGetId("Person", person_id)
     local people = NodeGetLinks(node_id, "KNOWS")
@@ -102,7 +103,6 @@ local ldbc_snb_iq01 = function(person_id, firstName)
 end
 
 -- Interactive Query 2
-
 ldbc_snb_iq02_orig = function(person_id, maxDate)
 
     local node_id = NodeGetId("Person", person_id)
@@ -153,25 +153,22 @@ end
 
 --ALL
 ldbc_snb_iq02 = function(person_id, maxDate)
-
     local node_id = NodeGetId("Person", person_id)
     local friends = NodeGetLinks(node_id, "KNOWS")
     local friend_properties = LinksGetNodeProperties(friends)
-    local messages = LinksGetLinks(friends, Direction.IN, "HAS_CREATOR")
+    local messages = LinksGetNeighborIds(friends, Direction.IN, "HAS_CREATOR")
 
     local results = {}
     local friend_properties_map = {}
-    for link, properties in pairs(friend_properties) do
-      friend_properties_map[tostring(link:getNodeId())] = properties
+    for id, properties in pairs(friend_properties) do
+      friend_properties_map[id] = properties
     end
 
-    for link, user_messages in pairs(messages) do
-         local properties = friend_properties_map[tostring(link:getNodeId())]
-         local messages_props = LinksGetNodeProperties(user_messages)
-
+    for link, user_message_ids in pairs(messages) do
+         local properties = friend_properties_map[link:getNodeId()]
+         local messages_props = FilterNodeProperties(user_message_ids, "Message", "creationDate", Operation.LT, maxDate, 0, 10000000)
          for j, msg_properties in pairs(messages_props) do
-           if (date(msg_properties["creationDate"]) < maxDate) then
-              local result = {
+               local result = {
                   ["friend.id"] = properties["id"],
                   ["friend.firstName"] = properties["firstName"],
                   ["friend.lastName"] = properties["lastName"]
@@ -184,10 +181,8 @@ ldbc_snb_iq02 = function(person_id, maxDate)
               end
               result["message.creationDate"] = msg_properties["creationDate"]
               table.insert(results, result)
-          end
         end
     end
-
       table.sort(results, function(a, b)
           local adate = a["message.creationDate"]
           local bdate = b["message.creationDate"]
@@ -208,7 +203,7 @@ ldbc_snb_iq02 = function(person_id, maxDate)
     return smaller
 end
 
-ldbc_snb_iq02("1129", date("2022-05-20T18:55:55.595+0000Z"))
+
 
 -- Interactive Query 3
 
@@ -273,27 +268,5 @@ local ldbc_snb_iq13 = function(person1_id, person2_id)
 
     return -1
 end
-
-
-
--- Test Query Parameters for IQ13
-local max_length = 4
-local length = 0
-local node1_id = NodeGetId("Person", "1129")
-local left_people = {}
-local seen_left = Roar.new()
-local next_left = Roar.new()
-next_left:add(node1_id)
-while ((next_left:cardinality()) > 0 and length < max_length) do
-    left_people = NodeIdsGetNeighborIds(next_left:getIds(), "KNOWS")
-    next_left:clear()
-    next_left:addIds(left_people)
-    next_left:inplace_difference(seen_left)
-    seen_left:inplace_union(next_left)
-    length = length + 1
-end
-length, NodesGetProperty(next_left:getIds(), "id")
-
-
 
 -- Interactive Query 14
