@@ -685,16 +685,15 @@ comments
 
 
 
-
+    local message_id = "1236950581248"
     local message_node_id = NodeGetId("Message", message_id)
     local author = NodeGetNeighbors(message_node_id, Direction.OUT, "HAS_CREATOR")[1]
     local knows_ids = NodeGetNeighborIds(author:getId(), "KNOWS")
+
     local comments = {}
     local replies = NodeGetNeighbors(message_node_id, Direction.IN, "REPLY_OF")
-    local replyAuthors = NodesGetNeighbors(replies, Direction.OUT, "HAS_CREATOR")
-
     for i, reply in pairs (replies) do
-        local replyAuthor = replyAuthors[reply:getId()][1]
+        local replyAuthor = NodeGetNeighbors(reply:getId(), Direction.OUT, "HAS_CREATOR")[1]
         local properties = replyAuthor:getProperties()
         local comment = {
             ["replyAuthor.id"] = properties["id"],
@@ -722,5 +721,4 @@ comments
     for i = 1, #comments do
         comments[i]["comment.creationDate"] = DateToISO(comments[i]["comment.creationDate"])
     end
-
 comments

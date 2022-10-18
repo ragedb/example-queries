@@ -166,7 +166,7 @@ ldbc_snb_iq02 = function(person_id, maxDate)
 
     for link, user_message_ids in pairs(messages) do
          local properties = friend_properties_map[link:getNodeId()]
-         local messages_props = FilterNodeProperties(user_message_ids, "Message", "creationDate", Operation.LT, maxDate, 0, 10000000)
+         local messages_props = FilterNodeProperties(user_message_ids, "Message", "creationDate", Operation.LT, maxDate, 0, 20, Sort.DESC)
          for j, msg_properties in pairs(messages_props) do
                local result = {
                   ["friend.id"] = properties["id"],
@@ -210,6 +210,24 @@ end
 -- Interactive Query 4
 
 -- Interactive Query 5
+ldbc_snb_iq05 = function(person_id, minDate)
+    local node_id = NodeGetId("Person", person_id)
+    local friends = NodeGetNeighborIds(node_id, "KNOWS")
+    local friend_of_friends = NodeIdsGetNeighborIds(friends)
+
+    local otherPerson = Roar.new()
+    otherPerson:addNodeIds(friends)
+    for friend_id, fof_ids in pairs(friend_of_friends) do
+        otherPerson:addNodeIds(fof_ids)
+    end
+    --Find Forums that any Person otherPerson became a member of after a given date ($minDate).
+    local forum_links = LinksGetLinks(otherPerson:getNodeHalfLinks, Direction.IN, "HAS_MEMBER")
+    for frien
+
+    local messages = LinksGetNeighborIds(friends, Direction.IN, "HAS_CREATOR")
+    local smaller = table.move(results, 1, 20, 1, {})
+    return smaller
+end
 
 -- Interactive Query 6
 
@@ -227,7 +245,7 @@ end
 
 -- Interactive Query 13
 
-local ldbc_snb_iq13 = function(person1_id, person2_id)
+ldbc_snb_iq13 = function(person1_id, person2_id)
     if (person1_id == person2_id) then return 0 end
     local length = 1
     local node1_id = NodeGetId("Person", person1_id)
