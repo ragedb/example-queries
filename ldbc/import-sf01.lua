@@ -183,29 +183,6 @@ for i, person in ftcsv.parseLine("/home/max/CLionProjects/ldbc/sn-sf1/person_spe
 end
 NodeSetProperty("Person", next_id, "speaks", languages)
 
-
-nodes = {
-   ["Person"] = NodeTypesGetCount("Person"),
-   ["Place"] = NodeTypesGetCount("Place"),
-   ["Tag"] = NodeTypesGetCount("Tag"),
-   ["TagClass"] = NodeTypesGetCount("TagClass"),
-   ["Organisation"] = NodeTypesGetCount("Organisation"),
-   ["Forum"] = NodeTypesGetCount("Forum"),
-   ["Message"] = NodeTypesGetCount("Message")
-}
-relationships = {
-      ["CONTAINER_OF"] = RelationshipTypesGetCount("CONTAINER_OF"),
-      ["KNOWS"] = RelationshipTypesGetCount("KNOWS"),
-      ["HAS_INTEREST"] = RelationshipTypesGetCount("HAS_INTEREST"),
-      ["HAS_MEMBER"] = RelationshipTypesGetCount("HAS_MEMBER"),
-      ["HAS_MODERATOR"] = RelationshipTypesGetCount("HAS_MODERATOR"),
-      ["HAS_TAG"] = RelationshipTypesGetCount("HAS_TAG"),
-      ["HAS_TYPE"] = RelationshipTypesGetCount("HAS_TYPE"),
-      ["IS_LOCATED_IN"] = RelationshipTypesGetCount("IS_LOCATED_IN"),
-      ["IS_PART_OF"] = RelationshipTypesGetCount("IS_PART_OF"),
-      ["LIKES"] = RelationshipTypesGetCount("LIKES"),
-      ["REPLY_OF"] = RelationshipTypesGetCount("REPLY_OF"),
-      ["STUDY_AT"] = RelationshipTypesGetCount("STUDY_AT"),
-      ["WORK_AT"] = RelationshipTypesGetCount("WORK_AT")
-}
-nodes, relationships
+local nodes_count = AllNodesCounts()
+local rels_count= AllRelationshipsCounts()
+nodes_count, rels_count
